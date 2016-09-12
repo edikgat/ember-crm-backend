@@ -1,0 +1,21 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: 5
+  username: root
+  password: root
+  socket: /var/run/mysqld/mysqld.sock
+
+development:
+  <<: *default
+  database: requestor-rails_development
+
+test:
+  <<: *default
+  database: requestor-rails_test
+
+production:
+  <<: *default
+  database: requestor-rails_production
+  username: requestor-rails
+  password: <%= ENV['REQUESTOR-RAILS_DATABASE_PASSWORD'] %>
