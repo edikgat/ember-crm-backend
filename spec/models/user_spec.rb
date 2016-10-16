@@ -8,6 +8,7 @@ RSpec.describe User, type: :model do
     it { is_expected.to validate_length_of(:password) }
     it { is_expected.to validate_confirmation_of(:password) }
     it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
+    it_behaves_like 'email validation examples'
   end
   context 'associations' do
     it { should have_many(:support_requests).dependent(:destroy) }
