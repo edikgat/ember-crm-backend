@@ -14,8 +14,6 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'activeadmin', github: 'activeadmin'
 gem 'devise'
 
-# gem 'aasm'
-
 gem 'grape-swagger-rails'
 gem 'grape'
 gem 'roar'

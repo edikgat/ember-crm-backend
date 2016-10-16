@@ -39,6 +39,7 @@ class Api::SupportAgentsApi::SupportRequests < Api::SupportAgentsApi::Base
       requires :support_request, type: Hash do
         optional :status, type: String
         optional :notes, type: String
+        optional :subject, type: String
       end
     end
     route_param :id do

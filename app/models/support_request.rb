@@ -6,6 +6,7 @@ class SupportRequest < ActiveRecord::Base
 
   validates :status, inclusion: { in: AVALIABLE_STATUSES }
   validates :subject, :user, :status, presence: true
+  validates :subject, uniqueness: { scope: :user_id, case_sensitive: false }
   scope :closed, -> { where(status: 'closed') }
 
   before_save :set_closed_at

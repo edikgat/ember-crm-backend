@@ -67,6 +67,7 @@ ActiveRecord::Schema.define(version: 20160907182314) do
     t.datetime "updated_at",                                null: false
   end
 
+  add_index "support_requests", ["user_id", "subject"], name: "index_support_requests_on_user_id_and_subject", unique: true, using: :btree
   add_index "support_requests", ["user_id"], name: "index_support_requests_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|

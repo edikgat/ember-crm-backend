@@ -37,16 +37,16 @@ describe 'supply partners auth' do
     let(:headers) { {'Authorization' => {token: token, resource: 'support_agent'}.to_json} }
 
     describe 'PUT /api/support_agents/v1/support_requests/:id' do
-      let(:request) { create(:support_request, notes: 'notes', status: 'open') }
+      let(:request) { create(:support_request, notes: 'notes', status: 'open', subject: 'subject') }
       let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
       context 'valid' do
         it 'update subject' do
           expect put(url_path,
                   {format: :json,
-                  support_request: {notes: 'new notes', status: 'closed'}}, headers)
+                  support_request: {notes: 'new notes', status: 'closed', subject: 'new subject'}}, headers)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
-                  a_hash_including("notes" => "new notes", 'status' => "closed")))
+                  a_hash_including("notes" => "new notes", 'status' => "closed", 'subject' => 'new subject')))
           expect(request.reload.closed_at.present?).to be_truthy
         end
       end
