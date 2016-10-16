@@ -238,6 +238,8 @@ GEM
     rdoc (4.2.2)
       json (~> 1.4)
     redis (3.3.1)
+    redis-namespace (1.5.2)
+      redis (~> 3.0, >= 3.0.4)
     representable (2.3.0)
       uber (~> 0.0.7)
     responders (2.3.0)
@@ -329,6 +331,7 @@ DEPENDENCIES
   rails (= 4.2.7.1)
   rails-erd
   redis (~> 3.2)
+  redis-namespace
   roar
   rspec-rails (~> 3.5)
   sass-rails (~> 5.0)

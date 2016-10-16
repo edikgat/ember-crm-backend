@@ -1,3 +1,5 @@
 require "redis"
 
-$redis = Redis.new
+plain_redis = Redis.new
+
+$redis = Redis::Namespace.new(Rails.env, redis: plain_redis)

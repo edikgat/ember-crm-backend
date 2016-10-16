@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 ruby "2.3.1"
+gem 'redis-namespace'
 gem 'rails', '4.2.7.1'
 gem 'mysql2', '>= 0.3.13', '< 0.5'
 gem 'sass-rails', '~> 5.0'
