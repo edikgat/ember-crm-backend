@@ -1,7 +1,7 @@
 class APIAuthenticator
   ADDITIONAL_ACTIVITY_PERIOD = 30.day
 
-  attr_reader :user, :token, :resource_class
+  attr_reader :token, :resource_class
 
   def initialize(token, resource_class)
     @token = token
