@@ -28,12 +28,13 @@ group :development, :test do
   gem 'pry-rails'
   gem 'pry-byebug'
   gem 'pry-remote'
-  gem 'rspec-rails', '~> 3.5'
   gem 'factory_girl_rails'
 end
 
 group :test do
   gem 'shoulda-matchers', '~> 3.1'
+  gem 'timecop'
+  gem 'rspec-rails', '~> 3.5'
 end
 
 group :development do

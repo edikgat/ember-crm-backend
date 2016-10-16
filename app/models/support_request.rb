@@ -8,6 +8,9 @@ class SupportRequest < ActiveRecord::Base
   validates :subject, :user, :status, presence: true
   validates :subject, uniqueness: { scope: :user_id, case_sensitive: false }
   scope :closed, -> { where(status: 'closed') }
+  scope :closed_after, ->(last_closed_time) do
+    where(arel_table[:closed_at].gt(last_closed_time))
+  end
 
   before_save :set_closed_at
 

@@ -23,6 +23,6 @@ class Reports::ClosedSupportRequestsReport
   end
 
   def scope
-    SupportRequest.where.not(closed_at: nil).where("closed_at > ?", current_time - 1.month).order(:closed_at).includes(:user)
+    SupportRequest.closed_after(Time.now - 1.month).order(closed_at: :asc).includes(:user)
   end
 end
