@@ -5,7 +5,7 @@ class SupportRequestPresenter < Roar::Decorator
   property :id
   property :subject, render_nil: true
   property :status
-  property :notes, render_nil: true
+  property :feedback, render_nil: true
   property :user_name, render_nil: true, exec_context: :decorator
 
   private

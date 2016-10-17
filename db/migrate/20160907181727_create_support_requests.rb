@@ -5,7 +5,7 @@ class CreateSupportRequests < ActiveRecord::Migration
       t.integer :user_id, null: false
       t.string :status, null: false, default: 'open'
       t.datetime :closed_at
-      t.text :notes
+      t.text :feedback
 
       t.timestamps null: false
     end

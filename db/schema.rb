@@ -62,7 +62,7 @@ ActiveRecord::Schema.define(version: 20160907182314) do
     t.integer  "user_id",    limit: 4,                      null: false
     t.string   "status",     limit: 255,   default: "open", null: false
     t.datetime "closed_at"
-    t.text     "notes",      limit: 65535
+    t.text     "feedback",   limit: 65535
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
   end

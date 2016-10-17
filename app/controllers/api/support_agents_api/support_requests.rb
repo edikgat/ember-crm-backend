@@ -46,7 +46,7 @@ class Api::SupportAgentsApi::SupportRequests < Api::SupportAgentsApi::Base
       requires :id, type: Integer, desc: 'Support Request ID'
       requires :support_request, type: Hash do
         optional :status, type: String
-        optional :notes, type: String
+        optional :feedback, type: String
         optional :subject, type: String
       end
     end

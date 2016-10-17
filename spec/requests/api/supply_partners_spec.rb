@@ -38,16 +38,16 @@ describe 'supply partners auth' do
     shared_examples_for 'authenticated support agents requests' do
 
       describe 'PUT /api/support_agents/v1/support_requests/:id' do
-        let(:request) { create(:support_request, notes: 'notes', status: 'open', subject: 'subject') }
+        let(:request) { create(:support_request, feedback: 'feedback', status: 'open', subject: 'subject') }
         let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
         let(:request_params) { {format: :json,
-                                support_request: {notes: 'new notes', status: 'closed', subject: 'new subject'}} }
+                                support_request: {feedback: 'new feedback', status: 'closed', subject: 'new subject'}} }
         context 'valid' do
           it 'update subject' do
             expect put(*request_array)
             expect(response.status).to eq(200)
             expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
-                    a_hash_including("notes" => "new notes", 'status' => "closed", 'subject' => 'new subject')))
+                    a_hash_including("feedback" => "new feedback", 'status' => "closed", 'subject' => 'new subject')))
             expect(request.reload.closed_at.present?).to be_truthy
           end
         end
