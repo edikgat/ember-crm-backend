@@ -6,17 +6,11 @@ class Api::UsersApi::Base < Grape::API
 
   helpers do
     def authenticate_user!
-      auth_hash = JSON.parse(request.headers['Authorization']) rescue {}
-      authenticator = APIAuthenticator.new(auth_hash['token'], User)
-      if auth_hash['resource'] == 'user' && authenticator.process
-        @user = authenticator.resource
-      else
-        error!('auth.unauthorized', 401)
-      end
+      authenticate_resource!('user', User)
     end
 
     def current_user
-      @user
+      @resource
     end
   end
 

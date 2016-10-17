@@ -34,57 +34,88 @@ describe 'supply partners auth' do
       api
     end
     let(:token) { authenticator.token }
-    let(:headers) { {'Authorization' => {token: token, resource: 'support_agent'}.to_json} }
 
-    describe 'PUT /api/support_agents/v1/support_requests/:id' do
-      let(:request) { create(:support_request, notes: 'notes', status: 'open', subject: 'subject') }
-      let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
-      context 'valid' do
-        it 'update subject' do
-          expect put(url_path,
-                  {format: :json,
-                  support_request: {notes: 'new notes', status: 'closed', subject: 'new subject'}}, headers)
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
-                  a_hash_including("notes" => "new notes", 'status' => "closed", 'subject' => 'new subject')))
-          expect(request.reload.closed_at.present?).to be_truthy
+    shared_examples_for 'authenticated support agents requests' do
+
+      describe 'PUT /api/support_agents/v1/support_requests/:id' do
+        let(:request) { create(:support_request, notes: 'notes', status: 'open', subject: 'subject') }
+        let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
+        let(:request_params) { {format: :json,
+                                support_request: {notes: 'new notes', status: 'closed', subject: 'new subject'}} }
+        context 'valid' do
+          it 'update subject' do
+            expect put(*request_array)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
+                    a_hash_including("notes" => "new notes", 'status' => "closed", 'subject' => 'new subject')))
+            expect(request.reload.closed_at.present?).to be_truthy
+          end
         end
       end
+      describe 'GET /api/support_agents/v1/support_requests/:id' do
+        let!(:request) { create(:support_request, subject: 'subject') }
+        let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
+        let(:request_params) { {format: :json} }
+        context 'valid' do
+          it 'return subject' do
+            expect get(*request_array)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
+                    a_hash_including("subject" => "subject")))
+          end
+        end
+      end
+      describe 'GET /api/support_agents/v1/support_requests/' do
+        let!(:request) { create(:support_request, subject: 'subject') }
+        let(:url_path) { "/api/support_agents/v1/support_requests/" }
+        let(:request_params) { {format: :json} }
+        context 'valid' do
+          it 'return subject' do
+            expect get(*request_array)
+            expect(response.status).to eq(200)
+          end
+        end
+      end
+      describe 'GET /api/support_agents/v1/support_requests/report.pdf' do
+        let(:requests) { create_list(:support_request, 3, status: 'closed') }
+        let(:url_path) { "/api/support_agents/v1/support_requests/report.pdf" }
+        let(:request_params) { {format: :json} }
+        let(:current_time) { Time.zone.local(2016, 8, 1, 13, 30) }
+        before do
+          Timecop.travel(current_time - 1.hour)
+          requests
+          Timecop.travel(current_time)
+        end
+        context 'valid' do
+          it 'return subject' do
+            expect get(*request_array)
+            expect(response.status).to eq(200)
+          end
+        end
+      end
+      describe 'DELETE /api/support_agents/v1/support_requests/:id' do
+        let!(:request) { create(:support_request, subject: 'subject') }
+        let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
+        let(:request_params) { {format: :json} }
+        context 'valid' do
+          it 'update subject' do
+            expect{ delete(*request_array)}.to change { SupportRequest.count }
+            expect(response.status).to eq(200)
+          end
+        end
+      end
+
     end
-    describe 'GET /api/support_agents/v1/support_requests/:id' do
-      let!(:request) { create(:support_request, subject: 'subject') }
-      let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
-      context 'valid' do
-        it 'return subject' do
-          expect get(url_path,
-                    {format: :json}, headers)
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
-                  a_hash_including("subject" => "subject")))
-        end
-      end
+
+    context 'with headers' do
+      let(:headers) { {'Authorization' => {token: token, resource: 'support_agent'}.to_json} }
+      let(:request_array) { [url_path, request_params, headers] }
+      it_behaves_like 'authenticated support agents requests'
     end
-    describe 'GET /api/support_agents/v1/support_requests/' do
-      let!(:request) { create(:support_request, subject: 'subject') }
-      let(:url_path) { "/api/support_agents/v1/support_requests/" }
-      context 'valid' do
-        it 'return subject' do
-          expect get(url_path,
-                    {format: :json}, headers)
-          expect(response.status).to eq(200)
-        end
-      end
-    end
-    describe 'DELETE /api/support_agents/v1/support_requests/:id' do
-      let!(:request) { create(:support_request, subject: 'subject') }
-      let(:url_path) { "/api/support_agents/v1/support_requests/#{request.id}" }
-      context 'valid' do
-        it 'update subject' do
-          expect{ delete(url_path,
-                  {format: :json}, headers)}.to change { SupportRequest.count }
-          expect(response.status).to eq(200)
-        end
-      end
+
+    context 'with params' do
+      let(:request_array) { [url_path, request_params.merge({'Authorization' => {token: token, resource: 'support_agent'}.to_json}), {}] }
+      it_behaves_like 'authenticated support agents requests'
     end
   end
 

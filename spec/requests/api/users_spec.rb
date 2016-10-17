@@ -72,113 +72,122 @@ describe 'users auth' do
       api
     end
     let(:token) { authenticator.token }
-    let(:headers) { {'Authorization' => {token: token, resource: 'user'}.to_json} }
+    shared_examples_for 'authenticated users requests' do
 
-    describe 'POST /api/users/v1/support_requests' do
-      let(:url_path) { '/api/users/v1/support_requests' }
-      context 'valid' do
-        it 'creates new support_request' do
-         expect{ post(url_path,
-                  {format: :json,
-                  support_request: {subject: 'subject'}}, headers) }.to change { SupportRequest.count }
-        end
-        it 'creates new support_request' do
-          expect post(url_path,
-                  {format: :json,
-                  support_request: {subject: 'subject'}}, headers)
-          expect(response.status).to eq(201)
-          expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
-                  a_hash_including("subject" => "subject",
-                                   "user_name" => user.full_name,
-                                   "status" => "open")))
+      describe 'POST /api/users/v1/support_requests' do
+        let(:url_path) { '/api/users/v1/support_requests' }
+        context 'valid' do
+          let(:request_params) { {format: :json,
+                        support_request: {subject: 'subject'}} }
+          it 'creates new support_request' do
+           expect{ post(*request_array) }.to change { SupportRequest.count }
+          end
+          it 'creates new support_request' do
+            expect post(*request_array)
+            expect(response.status).to eq(201)
+            expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
+                    a_hash_including("subject" => "subject",
+                                     "user_name" => user.full_name,
+                                     "status" => "open")))
 
+          end
+        end
+        context 'no subject' do
+          let(:request_params) { {format: :json,
+                                  support_request: {subject: ''}} }
+          it 'not create support request' do
+           expect{ post(*request_array) }.to_not change { SupportRequest.count }
+          end
         end
       end
-      context 'no subject' do
-        it 'not create support request' do
-         expect{ post(url_path,
-                  {format: :json,
-                  support_request: {subject: ''}}, headers) }.to_not change { SupportRequest.count }
+      describe 'PUT /api/users/v1/support_requests/:id' do
+        let(:request) { create(:support_request, subject: 'subject', user: user) }
+        let(:url_path) { "/api/users/v1/support_requests/#{request.id}" }
+        let(:request_params) { {format: :json,
+                                support_request: {subject: 'new subject'}} }
+        context 'valid' do
+          it 'update subject' do
+            expect put(*request_array)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
+                    a_hash_including("subject" => "new subject")))
+          end
+        end
+        context 'other user' do
+          let(:request) { create(:support_request, subject: 'subject') }
+          it 'update subject' do
+            expect put(*request_array)
+            expect(response.status).to eq(404)
+            expect(JSON.parse(response.body)).to match(a_hash_including("error" => an_instance_of(String)))
+          end
         end
       end
+      describe 'GET /api/users/v1/support_requests/:id' do
+        let!(:request) { create(:support_request, subject: 'subject', user: user) }
+        let(:url_path) { "/api/users/v1/support_requests/#{request.id}" }
+        let(:request_params) { {format: :json} }
+        context 'valid' do
+          it 'return subject' do
+            expect get(*request_array)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
+                    a_hash_including("subject" => "subject")))
+          end
+        end
+        context 'other user' do
+          let!(:request) { create(:support_request, subject: 'subject') }
+          it 'update subject' do
+            expect get(*request_array)
+            expect(response.status).to eq(404)
+            expect(JSON.parse(response.body)).to match(a_hash_including("error" => an_instance_of(String)))
+          end
+        end
+      end
+      describe 'GET /api/users/v1/support_requests/' do
+        let!(:request) { create(:support_request, subject: 'subject', user: user) }
+        let(:url_path) { "/api/users/v1/support_requests/" }
+        let(:request_params) { {format: :json} }
+        context 'valid' do
+          it 'return subject' do
+            expect get(*request_array)
+            expect(response.status).to eq(200)
+          end
+        end
+      end
+      describe 'DELETE /api/users/v1/support_requests/:id' do
+        let!(:request) { create(:support_request, subject: 'subject', user: user) }
+        let(:url_path) { "/api/users/v1/support_requests/#{request.id}" }
+        let(:request_params) { {format: :json} }
+        context 'valid' do
+          it 'update subject' do
+            expect{ delete(*request_array)}.to change { SupportRequest.count }
+            expect(response.status).to eq(200)
+          end
+        end
+        context 'other user' do
+          let!(:request) { create(:support_request, subject: 'subject') }
+          it 'update subject' do
+            expect delete(*request_array)
+            expect(response.status).to eq(404)
+            expect(JSON.parse(response.body)).to match(a_hash_including("error" => an_instance_of(String)))
+          end
+        end
+      end
+
     end
-    describe 'PUT /api/users/v1/support_requests/:id' do
-      let(:request) { create(:support_request, subject: 'subject', user: user) }
-      let(:url_path) { "/api/users/v1/support_requests/#{request.id}" }
-      context 'valid' do
-        it 'update subject' do
-          expect put(url_path,
-                  {format: :json,
-                  support_request: {subject: 'new subject'}}, headers)
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
-                  a_hash_including("subject" => "new subject")))
-        end
-      end
-      context 'other user' do
-        let(:request) { create(:support_request, subject: 'subject') }
-        it 'update subject' do
-          expect put(url_path,
-                  {format: :json,
-                  support_request: {subject: 'new subject'}}, headers)
-          expect(response.status).to eq(404)
-          expect(JSON.parse(response.body)).to match(a_hash_including("error" => an_instance_of(String)))
-        end
-      end
+
+    context 'with headers' do
+      let(:headers) { {'Authorization' => {token: token, resource: 'user'}.to_json} }
+      let(:request_array) { [url_path, request_params, headers] }
+      it_behaves_like 'authenticated users requests'
     end
-    describe 'GET /api/users/v1/support_requests/:id' do
-      let!(:request) { create(:support_request, subject: 'subject', user: user) }
-      let(:url_path) { "/api/users/v1/support_requests/#{request.id}" }
-      context 'valid' do
-        it 'return subject' do
-          expect get(url_path,
-                    {format: :json}, headers)
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)).to match(a_hash_including("support_request" =>
-                  a_hash_including("subject" => "subject")))
-        end
-      end
-      context 'other user' do
-        let!(:request) { create(:support_request, subject: 'subject') }
-        it 'update subject' do
-          expect get(url_path,
-                  {format: :json}, headers)
-          expect(response.status).to eq(404)
-          expect(JSON.parse(response.body)).to match(a_hash_including("error" => an_instance_of(String)))
-        end
-      end
+
+    context 'with params' do
+      let(:request_array) { [url_path, request_params.merge({'Authorization' => {token: token, resource: 'user'}.to_json}), {}] }
+      it_behaves_like 'authenticated users requests'
     end
-    describe 'GET /api/users/v1/support_requests/' do
-      let!(:request) { create(:support_request, subject: 'subject', user: user) }
-      let(:url_path) { "/api/users/v1/support_requests/" }
-      context 'valid' do
-        it 'return subject' do
-          expect get(url_path,
-                    {format: :json}, headers)
-          expect(response.status).to eq(200)
-        end
-      end
-    end
-    describe 'DELETE /api/users/v1/support_requests/:id' do
-      let!(:request) { create(:support_request, subject: 'subject', user: user) }
-      let(:url_path) { "/api/users/v1/support_requests/#{request.id}" }
-      context 'valid' do
-        it 'update subject' do
-          expect{ delete(url_path,
-                  {format: :json}, headers)}.to change { SupportRequest.count }
-          expect(response.status).to eq(200)
-        end
-      end
-      context 'other user' do
-        let!(:request) { create(:support_request, subject: 'subject') }
-        it 'update subject' do
-          expect delete(url_path,
-                  {format: :json}, headers)
-          expect(response.status).to eq(404)
-          expect(JSON.parse(response.body)).to match(a_hash_including("error" => an_instance_of(String)))
-        end
-      end
-    end
+
+
   end
 
 

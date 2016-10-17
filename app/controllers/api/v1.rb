@@ -19,6 +19,18 @@ class Api::V1 < Grape::API
   end
 
   helpers do
+    def authenticate_resource!(resource_name, resource_class)
+      auth_hash = JSON.parse(request.headers['Authorization']) rescue {}
+      if auth_hash.blank?
+        auth_hash = JSON.parse(params[:Authorization]) || {}
+      end
+      authenticator = APIAuthenticator.new(auth_hash['token'], resource_class)
+      if auth_hash['resource'] == resource_name && authenticator.process
+        @resource = authenticator.resource
+      else
+        error!('auth.unauthorized', 401)
+      end
+    end
 
     def represent_for(object, with:)
       if object.is_a? ::ActiveRecord::Relation

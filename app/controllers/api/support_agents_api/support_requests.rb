@@ -11,6 +11,14 @@ class Api::SupportAgentsApi::SupportRequests < Api::SupportAgentsApi::Base
   end
 
   resource :support_requests do
+    desc "Support requests report for currect month"
+    get '/report' do
+      report = Reports::ClosedSupportRequestsReport.new
+      content_type "application/pdf"
+      header['Content-Disposition'] = "attachment; filename=#{report.file_name}"
+      env['api.format'] = :binary
+      body report.render_report
+    end
 
     desc "Return all support requests"
     get "" do
